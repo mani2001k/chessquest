@@ -1,0 +1,103 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../stores/useAuthStore';
+
+export function Login() {
+  const navigate = useNavigate();
+  const setSession = useAuthStore((state) => state.setSession);
+  const setError = useAuthStore((state) => state.setError);
+  const setLoading = useAuthStore((state) => state.setLoading);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    if (!data.session) {
+      setError('Sign in succeeded but no session was returned. Please check your credentials and verify your email if required.');
+      return;
+    }
+
+    setSession(data.session);
+    navigate('/village');
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/village`,
+      },
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    }
+  };
+
+  return (
+    <main className="min-h-screen flex items-center justify-center px-4 py-8">
+      <section className="w-full max-w-md rounded-3xl border border-white/10 bg-panel p-8 shadow-glow">
+        <h1 className="text-3xl font-semibold text-white">Login</h1>
+        <p className="mt-2 text-sm text-muted">Enter your army credentials and command your Chess Quest.</p>
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+          {useAuthStore((state) => state.error) ? (
+            <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-200">
+              {useAuthStore((state) => state.error)}
+            </div>
+          ) : null}
+          <label className="block space-y-2 text-sm">
+            <span>Email</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3"
+            />
+          </label>
+          <label className="block space-y-2 text-sm">
+            <span>Password</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3"
+            />
+          </label>
+          <button
+            type="submit"
+            className="w-full rounded-2xl bg-accent px-4 py-3 text-sm font-semibold transition hover:bg-red-500"
+          >
+            Sign in
+          </button>
+        </form>
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            Continue with Google
+          </button>
+        </div>
+        <p className="mt-6 text-center text-sm text-muted">
+          New commander?{' '}
+          <Link to="/signup" className="text-white underline">Create an account</Link>
+        </p>
+      </section>
+    </main>
+  );
+}
