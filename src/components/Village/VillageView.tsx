@@ -7,8 +7,10 @@ import { usePlayer } from '../../hooks/usePlayer';
 import { useBuildings } from '../../hooks/useBuildings';
 import { Building } from '../../types';
 import { PlayerStats } from '../Profile/PlayerStats';
+import EnhancedVillageMap from './EnhancedVillageMap';
 import { Leaderboard } from '../Profile/Leaderboard';
 import { ArmyCamp } from './ArmyCamp';
+import InteractiveResourceCard from '../UI/InteractiveResourceCard';
 
 const defaultBuildings: Building[] = [
   { id: 'barracks', player_id: 'system', type: 'barracks', level: 1, created_at: new Date().toISOString() },
@@ -42,57 +44,55 @@ export function VillageView() {
   }, [villageBuildings]);
 
   return (
-    <main className="min-h-screen bg-surface px-4 py-6 text-white">
-      <section className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-panel p-6 shadow-glow md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold">Chess Quest Village</h1>
-            <p className="text-sm text-muted">Manage your army, upgrade your base, and launch your next battle.</p>
+    <main className="min-h-screen bg-gradient-to-br from-surface via-panel to-surface px-4 py-6 text-white">
+      <section className="mx-auto max-w-7xl space-y-8">
+        <div className="flex flex-col gap-4 rounded-3xl border-2 border-cyan-500/30 bg-gradient-to-r from-panel/80 to-panel/60 p-8 shadow-2xl md:flex-row md:items-center md:justify-between backdrop-blur-sm transform hover:scale-102 transition-transform duration-300">
+          <div className="animate-slide-up">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-chess-light to-chess-cyan bg-clip-text text-transparent">Chess Quest Village</h1>
+            <p className="text-sm text-muted mt-2">Manage your army, upgrade your base, and launch your next battle.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button className="rounded-2xl bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10" onClick={() => navigate('/battle')}>
-              Launch Battle
+            <button
+              onClick={() => navigate('/battle')}
+              className="rounded-2xl bg-gradient-to-r from-accent to-red-600 px-6 py-3 text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-accent/50 transform hover:-translate-y-1"
+            >
+              ⚔️ Launch Battle
             </button>
-            <button className="rounded-2xl bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10" onClick={() => setActiveTab('overview')}>
-              Overview
-            </button>
-            <button className="rounded-2xl bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10" onClick={() => setActiveTab('buildings')}>
-              Buildings
-            </button>
-            <button className="rounded-2xl bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10" onClick={() => setActiveTab('army')}>
-              Army Camp
-            </button>
+            {['overview', 'buildings', 'army'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as any)}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-widest transition-all duration-300 transform hover:scale-105 ${
+                  activeTab === tab
+                    ? 'bg-chess-cyan text-panel shadow-lg shadow-cyan-500/50'
+                    : 'bg-white/5 text-white hover:bg-white/10 hover:-translate-y-1'
+                }`}
+              >
+                {tab === 'overview' && '📊'}
+                {tab === 'buildings' && '🏢'}
+                {tab === 'army' && '🪖'}
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        {/* Enhanced village map */}
+        <div className="animate-scale-in">
+          <EnhancedVillageMap buildings={villageBuildings} />
+        </div>
+
+        {/* Resource cards grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 animate-slide-up">
+          <InteractiveResourceCard title="Gold" value={player?.gold ?? 0} icon="💰" color="gold" />
+          <InteractiveResourceCard title="Elixir" value={player?.elixir ?? 0} icon="⚗️" color="elixir" />
+          <InteractiveResourceCard title="Dark Elixir" value={player?.dark_elixir ?? 0} icon="🌑" color="dark" />
+          <InteractiveResourceCard title="Army Capacity" value={totalCapacity} icon="🪖" color="cyan" />
+          <InteractiveResourceCard title="Storage" value={totalStorage} icon="📦" color="cyan" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-6">
-            <div className="rounded-3xl border border-white/10 bg-panel p-6 shadow-glow">
-              <h2 className="text-xl font-semibold">Village Snapshot</h2>
-              <p className="mt-3 text-sm text-muted">Resources and building progress are visible here. Keep your base stocked for the next clash.</p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="rounded-3xl border border-white/10 bg-surface p-5">
-                  <h3 className="text-sm uppercase tracking-[0.3em] text-muted">Current gold</h3>
-                  <p className="mt-4 text-3xl font-semibold">{player?.gold ?? 0}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-surface p-5">
-                  <h3 className="text-sm uppercase tracking-[0.3em] text-muted">Elixir</h3>
-                  <p className="mt-4 text-3xl font-semibold">{player?.elixir ?? 0}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-surface p-5">
-                  <h3 className="text-sm uppercase tracking-[0.3em] text-muted">Dark Elixir</h3>
-                  <p className="mt-4 text-3xl font-semibold">{player?.dark_elixir ?? 0}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-surface p-5">
-                  <h3 className="text-sm uppercase tracking-[0.3em] text-muted">Army capacity</h3>
-                  <p className="mt-4 text-3xl font-semibold">{totalCapacity}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-surface p-5">
-                  <h3 className="text-sm uppercase tracking-[0.3em] text-muted">Storage cap</h3>
-                  <p className="mt-4 text-3xl font-semibold">{totalStorage}</p>
-                </div>
-              </div>
-            </div>
 
             {activeTab === 'overview' && (
               <div className="rounded-3xl border border-white/10 bg-panel p-6 shadow-glow">

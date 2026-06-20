@@ -148,8 +148,9 @@ export function Game() {
       setSaved(true);
       setStatusMessage('Battle record saved and webhook sent.');
     } catch (error) {
-      console.error(error);
-      setStatusMessage('Failed to save battle progress.');
+        console.error('saveBattleProgress error', error);
+        const msg = (error as any)?.message || JSON.stringify(error);
+        setStatusMessage(`Failed to save battle progress: ${msg}`);
     }
   };
 

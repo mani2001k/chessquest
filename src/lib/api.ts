@@ -55,7 +55,10 @@ export async function createGameRecord(game: Omit<Partial<GameRecord>, 'id' | 'c
   game_state: Record<string, unknown>;
 }): Promise<GameRecord> {
   const { data, error } = await supabase.from('games').insert(game).select().single();
-  if (error) throw error;
+  if (error) {
+    console.error('createGameRecord failed', { error, game });
+    throw error;
+  }
   return data as GameRecord;
 }
 
