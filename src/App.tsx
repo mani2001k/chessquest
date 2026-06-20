@@ -8,10 +8,26 @@ import { PlayerStats } from './components/Profile/PlayerStats';
 import { Leaderboard } from './components/Profile/Leaderboard';
 import { BattleHistory } from './components/History/BattleHistory';
 import { Header } from './components/Header';
+import { useEffect } from 'react';
+import { supabase } from './supabaseClient';
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const token = useAuthStore((state) => state.session?.access_token);
   const loading = useAuthStore((state) => state.loading);
+  const setSession = useAuthStore((state) => state.setSession);
+
+  // Handle OAuth callback on page load
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      // Check if we have a session from OAuth redirect
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSession(session);
+      }
+    };
+    
+    handleOAuthCallback();
+  }, [setSession]);
 
   if (loading) {
     return (
@@ -31,7 +47,8 @@ function App() {
     <div className="min-h-screen bg-surface text-white">
       <Header />
       <Routes>
-        <Route path="/" element={<Navigate to="/village" replace />} />
+        {/* Root path now shows login page instead of redirecting */}
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route
@@ -74,6 +91,8 @@ function App() {
             </RequireAuth>
           }
         />
+        {/* Catch-all route for 404s - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
   );
