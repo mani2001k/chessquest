@@ -32,19 +32,7 @@ export function Login() {
     navigate('/village');
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/village`,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    }
-  };
+
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-8">
@@ -84,15 +72,7 @@ export function Login() {
             Sign in
           </button>
         </form>
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            Continue with Google
-          </button>
-        </div>
+
         <p className="mt-6 text-center text-sm text-muted">
           New commander?{' '}
           <Link to="/signup" className="text-white underline">Create an account</Link>

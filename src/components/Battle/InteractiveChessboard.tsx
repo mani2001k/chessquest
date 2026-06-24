@@ -49,9 +49,6 @@ export function InteractiveChessboard({ fen, onPieceDrop }: ChessBoardProps) {
           onPieceDrop={onPieceDrop}
           arePiecesDraggable={true}
           boardWidth={400}
-          customSquareStyles={{
-            0: { backgroundColor: '#4ade80' },
-          }}
         />
       </div>
     </div>

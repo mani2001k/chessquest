@@ -9,7 +9,8 @@ import { Leaderboard } from './components/Profile/Leaderboard';
 import { BattleHistory } from './components/History/BattleHistory';
 import { Header } from './components/Header';
 import { useEffect } from 'react';
-import { supabase } from './supabaseClient';
+import { supabase } from './lib/supabase';
+
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const token = useAuthStore((state) => state.session?.access_token);
